@@ -1,0 +1,7 @@
+# Ignore build outputs
+bin/
+obj/
+
+# Ignore generated files
+*.g.cs
+*.g.i.cs
