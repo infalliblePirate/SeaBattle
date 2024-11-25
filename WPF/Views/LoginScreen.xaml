@@ -13,7 +13,16 @@
             <TextBox Name="txtUsername" Background="Gray" Foreground="White" FontSize="14" AcceptsReturn="True"/>
             <Label Content="Password" Foreground="white"/>
             <PasswordBox Name="txtPassword" Background="Gray" Foreground="White" FontSize="14"/>
-            <Button Name="btnSubmit" Content="Submit" Foreground="White" Width="65" Margin="10" Click="BtnSubmit_Click" Height="32"/>
+            <Canvas Margin="20">
+                <!-- Submit Button with a specific X position -->
+                <Button x:Name="btnSubmit" Content="Submit" Foreground="White" Width="75" Height="32" Click="BtnSubmit_Click"
+            Canvas.Left="-20" Canvas.Top="2" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+
+                <!-- Register Button with a different X position -->
+                <Button Name="registerSubmit" Content="Register" Foreground="White" Width="75" Height="32" Click="RegisterSubmitClick"
+            Canvas.Left="125" Canvas.Top="2" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+            </Canvas>
+
         </StackPanel>
     </Border>
 </Window>

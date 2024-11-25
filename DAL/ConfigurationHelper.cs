@@ -5,7 +5,7 @@ public static class ConfigurationHelper {
 
     static ConfigurationHelper() {
         var builder = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
+            .SetBasePath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."))
             .AddJsonFile("appsettings.json", optional:false, reloadOnChange: true);
         _configuration = builder.Build();
     }
@@ -13,7 +13,7 @@ public static class ConfigurationHelper {
     public static string GetConnectionString(string name) {
         var connectionString = _configuration.GetConnectionString(name);
         if (string.IsNullOrEmpty(connectionString)) {
-            throw new InvalidOperationException($"THe connection string '{name}' has not been initialized");
+            throw new InvalidOperationException($"The connection string '{name}' has not been initialized");
         }
         return connectionString;
     }

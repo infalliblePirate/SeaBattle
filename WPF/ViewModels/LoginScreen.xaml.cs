@@ -30,5 +30,16 @@ namespace SeaBattle.Views
                 MessageBox.Show("Username or password incorrect.");
             }
         }
+
+        private async void RegisterSubmitClick(object sender, RoutedEventArgs e) {
+            bool isSuccessfulRegistration = await _authService.RegisterUserAsync(txtUsername.Text, txtPassword.Password);
+            if (isSuccessfulRegistration) {
+                MainWindow mainWindow = new MainWindow();
+                mainWindow.Show();
+                this.Close();
+            } else {
+                MessageBox.Show("Registration failed.");
+            }
+        }
     }
 }

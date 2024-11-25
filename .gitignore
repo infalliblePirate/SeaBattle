@@ -30,3 +30,6 @@ obj/
 # Ignore specific OS files
 .DS_Store
 Thumbs.db
+
+# Ignore formatter
+.config

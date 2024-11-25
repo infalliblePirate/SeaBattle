@@ -2,6 +2,7 @@ using Npgsql;
 
 using SeaBattle.Models;
 namespace SeaBattle.Data;
+
 public class UserRepository : IUserRepository {
     private readonly string _connectionString;
 
@@ -9,18 +10,17 @@ public class UserRepository : IUserRepository {
         _connectionString = connectionString;
     }
 
-    public async Task<User> GetUserByUsernameAsync(string username) {
+   public async Task<User> GetUserByUsernameAsync(string username) {
         using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
 
-        var command = new NpgsqlCommand("SELECT Id, Username, PasswordHash FROM Users WHERE Username = @Username", connection);
-        command.Parameters.AddWithValue("Username", username);
+        var query = "SELECT Id, username, passwordhash FROM users WHERE username = @username";
+        using var command = new NpgsqlCommand(query, connection);
+        command.Parameters.AddWithValue("username", username);
 
         using var reader = await command.ExecuteReaderAsync();
-        if (await reader.ReadAsync())
-        {
-            return new User
-            {
+        if (await reader.ReadAsync()) {
+            return new User {
                 Id = reader.GetInt32(0),
                 Username = reader.GetString(1),
                 PasswordHash = reader.GetString(2)
@@ -34,10 +34,13 @@ public class UserRepository : IUserRepository {
         using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
 
-        var command = new NpgsqlCommand("INSERT INTO Users (Usernmae, PasswordHash) VALUES (@Username, @PasswordHash)", connection);
-        command.Parameters.AddWithValue("Username", user.Username);
-        command.Parameters.AddWithValue("PaswordHash", user.PasswordHash);
+        var insertQuery = "INSERT INTO users (username, passwordhash) VALUES (@username, @passwordhash);";
+        using var command2 = new NpgsqlCommand(insertQuery, connection);
+        command2.Parameters.AddWithValue("username", user.Username);
+        command2.Parameters.AddWithValue("passwordhash", user.PasswordHash);
 
-        await command.ExecuteNonQueryAsync();
+        await command2.ExecuteNonQueryAsync();
     }
+
+
 }
