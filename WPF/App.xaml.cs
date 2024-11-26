@@ -15,7 +15,11 @@ public partial class App : Application
         string connectionString = ConfigurationHelper.GetConnectionString("DefaultConnection");
         var userRepo = new UserRepository(connectionString);
         var authService = new AuthService(userRepo);
-        var loginScreen = new Views.LoginScreen(authService);
+        var gameRepo = new GameRepository(connectionString);
+        var gameService = new GameService(gameRepo);
+
+        var loginScreen = new Views.LoginScreen(authService, gameService);
+
         loginScreen.Show();
     }
 

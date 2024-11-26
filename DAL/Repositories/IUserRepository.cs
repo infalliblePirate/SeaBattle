@@ -7,5 +7,5 @@ using SeaBattle.Entities;
 namespace SeaBattle.Data;
 public interface IUserRepository {
     Task<UserEntity> GetUserByUsernameAsync(string username);
-    Task AddUserAsync(UserEntity user);
+    Task<int> AddUserAsync(UserEntity user);
 }

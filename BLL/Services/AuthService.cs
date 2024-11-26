@@ -32,14 +32,19 @@ public class AuthService {
 
         var hashedPassword = HashPassword(password);
         var userEntity = new UserEntity { Username = username, PasswordHash = hashedPassword };
-        await _userRepository.AddUserAsync(userEntity);
-        
-        var userModel = new UserModel {
-            Id = userEntity.Id,
-            Username = userEntity.Username,
-            PasswordHash = userEntity.PasswordHash
-        };
-        return userModel;
+        try {
+            int userId = await _userRepository.AddUserAsync(userEntity);
+            var userModel = new UserModel {
+                Id = userId,
+                Username = userEntity.Username,
+                PasswordHash = userEntity.PasswordHash
+            };
+            return userModel;
+        }catch (Exception ex) {
+            Console.Error.WriteLine($"Error upon creating user: {ex.Message}");
+            return null;
+        }
+       
     }
 
     private bool VerifyPassword(string password, string storedHashed) {

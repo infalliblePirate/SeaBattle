@@ -13,10 +13,12 @@ namespace SeaBattle.Views
     public partial class LoginScreen : Window
     {
         private readonly AuthService _authService;
+        private readonly GameService _gameService;
 
-        public LoginScreen(AuthService authService)
+        public LoginScreen(AuthService authService, GameService gameService)
         {
             _authService = authService;
+            _gameService = gameService;
             InitializeComponent();
         }
 
@@ -25,7 +27,7 @@ namespace SeaBattle.Views
             var loginUser = await _authService.LoginUserAsync(txtUsername.Text, txtPassword.Password);
             if (loginUser != null) {
                 SessionService.Activeuser = loginUser;
-                CreateEnterGame createEnterGame = new CreateEnterGame(_authService);
+                CreateEnterGame createEnterGame = new CreateEnterGame(_gameService);
                 createEnterGame.Show();
                 this.Close();
             } else {
@@ -37,7 +39,7 @@ namespace SeaBattle.Views
             var registeredUser = await _authService.RegisterUserAsync(txtUsername.Text, txtPassword.Password);
             if (registeredUser != null) {
                 SessionService.Activeuser = registeredUser;
-                CreateEnterGame createEnterGame = new CreateEnterGame(_authService);
+                CreateEnterGame createEnterGame = new CreateEnterGame(_gameService);
                 createEnterGame.Show();
                 this.Close();
             } else {

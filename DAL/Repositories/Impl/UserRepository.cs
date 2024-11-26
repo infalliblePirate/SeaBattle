@@ -30,16 +30,19 @@ public class UserRepository : IUserRepository {
         return null;
     }
 
-    public async Task AddUserAsync(UserEntity user) {
+    public async Task<int> AddUserAsync(UserEntity user) {
         using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
 
-        var insertQuery = "INSERT INTO users (username, passwordhash) VALUES (@username, @passwordhash);";
-        using var command2 = new NpgsqlCommand(insertQuery, connection);
-        command2.Parameters.AddWithValue("username", user.Username);
-        command2.Parameters.AddWithValue("passwordhash", user.PasswordHash);
+        var query = "INSERT INTO users (username, passwordhash) VALUES (@username, @passwordhash) RETURNING id;";
+        using var command = new NpgsqlCommand(query, connection);
+        command.Parameters.AddWithValue("username", user.Username);
+        command.Parameters.AddWithValue("passwordhash", user.PasswordHash);
 
-        await command2.ExecuteNonQueryAsync();
+        var result = await command.ExecuteScalarAsync();
+    
+        // Return the Id of the newly created user
+        return (int)result;
     }
 
 

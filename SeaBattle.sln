@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeaBattle.WPF", "WPF\SeaBat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeaBattle.DAL", "DAL\SeaBattle.DAL.csproj", "{2296F5C8-8CE5-48C4-9CE9-81B17F469774}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeaBattle.TestClient", "SeaBattle.TestClient\SeaBattle.TestClient.csproj", "{53B51CDA-8BBA-4A60-AFA2-DA90E9597B3F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

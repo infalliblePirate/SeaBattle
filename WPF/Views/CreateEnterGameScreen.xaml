@@ -7,11 +7,25 @@
         mc:Ignorable="d"
         Title="LoginScreen" Height="300" Width="300" FontSize="14" Background="#04c582">
     <Border Background="Black" CornerRadius="20" Margin="20">
-            <Canvas Margin="20">
-                <Button x:Name="createGame" Content="CreateGame" Foreground="White" Width="75" Height="32" Click="CreateGameClick"
-            Canvas.Left="-20" Canvas.Top="2" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                <Button Name="enterGame" Content="EnterGame" Foreground="White" Width="75" Height="32" Click="EnterGameClick"
-            Canvas.Left="125" Canvas.Top="2" HorizontalAlignment="Right" VerticalAlignment="Top"/>
-            </Canvas>
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> 
+                <RowDefinition Height="Auto"/> 
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/> 
+                <ColumnDefinition Width="Auto"/> 
+                <ColumnDefinition Width="*"/> 
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="createGame" Content="CreateGame" Foreground="White" Width="75" Height="32" Click="CreateGameClick"
+                    Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+            <Button Name="enterGame" Content="EnterGame" Foreground="White" Width="75" Height="32" Click="EnterGameClick"
+                    Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+            <TextBox Name="txtGameCode" Background="Gray" Foreground="White" FontSize="18" AcceptsReturn="True" 
+                     Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Center" Height="40"/>
+        </Grid>
     </Border>
 </Window>
