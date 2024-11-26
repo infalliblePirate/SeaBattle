@@ -56,4 +56,8 @@ public class UserService {
         // TODO: store hashed
         return password;
     }
+
+    public async Task JoinGame(int id) {
+        await _userRepository.JoinGame(id, SessionService.Activeuser.Id);
+    }
 }

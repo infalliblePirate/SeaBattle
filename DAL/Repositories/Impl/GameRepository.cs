@@ -33,11 +33,11 @@ public class GameRepository : IGameRepository {
     }
 
     // todo: how to update, mb pass game?
-    public async Task AddUserToGame(UserEntity user) {
-        using var connection = new NpgsqlConnection(_connectionString);
-        await connection.OpenAsync();
+    // public async Task AddUserToGame(UserEntity user) {
+    //     using var connection = new NpgsqlConnection(_connectionString);
+    //     await connection.OpenAsync();
 
-    }
+    // }
 
     
 }

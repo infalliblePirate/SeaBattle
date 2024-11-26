@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore.Update.Internal;
 using Npgsql;
 
 using SeaBattle.Entities;
@@ -43,6 +44,18 @@ public class UserRepository : IUserRepository {
     
         // Return the Id of the newly created user
         return (int)result;
+    }
+
+    public async Task JoinGame(int gameId, int userId) {
+        using var connection = new NpgsqlConnection(_connectionString);
+        await connection.OpenAsync();
+        var query = "UPDATE games SET user2_id = @joinedUserId WHERE id = @id;";
+        
+        using var command = new NpgsqlCommand(query, connection);
+        command.Parameters.AddWithValue("joinedUserId", userId);
+        command.Parameters.AddWithValue("id", gameId);
+
+        await command.ExecuteNonQueryAsync();
     }
 
 

@@ -9,14 +9,16 @@ namespace SeaBattle.Views
     public partial class CreateEnterGame : Window
     {
         private readonly GameService _gameService;
+        private readonly UserService _userService;
 
-        public CreateEnterGame(GameService gameService) {
+        public CreateEnterGame(GameService gameService, UserService userService) {
             _gameService = gameService;
+            _userService = userService;
             InitializeComponent();
         }
 
         private async void CreateGameClick(object sender, RoutedEventArgs e) {
-             try {
+            try {
                 var game = await _gameService.CreateGame();
                 if (game != null) {
                     MessageBox.Show($"Game created with ID: {game.Id}");
@@ -29,7 +31,16 @@ namespace SeaBattle.Views
         }
 
         private async void EnterGameClick(object sender, RoutedEventArgs e) {
-            MessageBox.Show("You want to create a game");
+             try {
+                if (int.TryParse(txtGameCode.Text, out int gameId)) {
+                    await _userService.JoinGame(gameId);
+                } else {
+                    MessageBox.Show("Please enter a valid game code.");
+                }
+            }
+            catch (Exception ex) {
+                MessageBox.Show($"An error occurred: {ex.Message}");
+            }
         }
     }
 }

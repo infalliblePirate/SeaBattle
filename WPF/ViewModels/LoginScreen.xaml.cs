@@ -27,7 +27,7 @@ namespace SeaBattle.Views
             var loginUser = await _userService.LoginUserAsync(txtUsername.Text, txtPassword.Password);
             if (loginUser != null) {
                 SessionService.Activeuser = loginUser;
-                CreateEnterGame createEnterGame = new CreateEnterGame(_gameService);
+                CreateEnterGame createEnterGame = new CreateEnterGame(_gameService, _userService);
                 createEnterGame.Show();
                 this.Close();
             } else {
@@ -39,7 +39,7 @@ namespace SeaBattle.Views
             var registeredUser = await _userService.RegisterUserAsync(txtUsername.Text, txtPassword.Password);
             if (registeredUser != null) {
                 SessionService.Activeuser = registeredUser;
-                CreateEnterGame createEnterGame = new CreateEnterGame(_gameService);
+                CreateEnterGame createEnterGame = new CreateEnterGame(_gameService, _userService);
                 createEnterGame.Show();
                 this.Close();
             } else {
