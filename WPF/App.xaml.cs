@@ -14,11 +14,11 @@ public partial class App : Application
     private void ApplicationStartup(object sender, StartupEventArgs e) {
         string connectionString = ConfigurationHelper.GetConnectionString("DefaultConnection");
         var userRepo = new UserRepository(connectionString);
-        var authService = new AuthService(userRepo);
+        var userService = new UserService(userRepo);
         var gameRepo = new GameRepository(connectionString);
         var gameService = new GameService(gameRepo);
 
-        var loginScreen = new Views.LoginScreen(authService, gameService);
+        var loginScreen = new Views.LoginScreen(userService, gameService);
 
         loginScreen.Show();
     }
