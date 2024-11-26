@@ -1,5 +1,6 @@
 using SeaBattle.Models;
 using SeaBattle.Data;
+using SeaBattle.Entities;
 namespace SeaBattle.Services;
 public class AuthService {
     private readonly IUserRepository _userRepository;
@@ -8,25 +9,37 @@ public class AuthService {
         _userRepository = userRepository;
     }
 
-    public async Task<bool> ValidataeUserAsync(string username, string password) {
-        var user = await _userRepository.GetUserByUsernameAsync(username);
+    public async Task<UserModel?> LoginUserAsync(string username, string password) {
+        var userEntity = await _userRepository.GetUserByUsernameAsync(username);
 
-        if (user == null || !VerifyPassword(password, user.PasswordHash)) {
-            return false;
+        if (userEntity == null || !VerifyPassword(password, userEntity.PasswordHash)) {
+            return null;
         }
-        return true;
+        var userModel = new UserModel {
+            Id = userEntity.Id,
+            Username = userEntity.Username,
+            PasswordHash = userEntity.PasswordHash
+        };
+
+        return userModel;
     }
 
-    public async Task<bool> RegisterUserAsync(string username, string password) {
+    public async Task<UserModel?> RegisterUserAsync(string username, string password) {
         var existing = await _userRepository.GetUserByUsernameAsync(username);
         if (existing != null) {
-            return false;
+            return null;
         }
 
         var hashedPassword = HashPassword(password);
-        var user = new User { Username = username, PasswordHash = hashedPassword };
-        await _userRepository.AddUserAsync(user);
-        return true;
+        var userEntity = new UserEntity { Username = username, PasswordHash = hashedPassword };
+        await _userRepository.AddUserAsync(userEntity);
+        
+        var userModel = new UserModel {
+            Id = userEntity.Id,
+            Username = userEntity.Username,
+            PasswordHash = userEntity.PasswordHash
+        };
+        return userModel;
     }
 
     private bool VerifyPassword(string password, string storedHashed) {

@@ -3,6 +3,7 @@ using System;
 using System.Windows;
 
 using SeaBattle.Services;
+using SeaBattle.Models;
 
 namespace SeaBattle.Views
 {
@@ -21,10 +22,11 @@ namespace SeaBattle.Views
 
         private async void BtnSubmit_Click(object sender, RoutedEventArgs e)
         {
-            bool isRegisteredUser = await _authService.ValidataeUserAsync(txtUsername.Text, txtPassword.Password);
-            if (isRegisteredUser) {
-                MainWindow mainWindow = new MainWindow();
-                 mainWindow.Show();
+            var loginUser = await _authService.LoginUserAsync(txtUsername.Text, txtPassword.Password);
+            if (loginUser != null) {
+                SessionService.Activeuser = loginUser;
+                CreateEnterGame createEnterGame = new CreateEnterGame(_authService);
+                createEnterGame.Show();
                 this.Close();
             } else {
                 MessageBox.Show("Username or password incorrect.");
@@ -32,10 +34,11 @@ namespace SeaBattle.Views
         }
 
         private async void RegisterSubmitClick(object sender, RoutedEventArgs e) {
-            bool isSuccessfulRegistration = await _authService.RegisterUserAsync(txtUsername.Text, txtPassword.Password);
-            if (isSuccessfulRegistration) {
-                MainWindow mainWindow = new MainWindow();
-                mainWindow.Show();
+            var registeredUser = await _authService.RegisterUserAsync(txtUsername.Text, txtPassword.Password);
+            if (registeredUser != null) {
+                SessionService.Activeuser = registeredUser;
+                CreateEnterGame createEnterGame = new CreateEnterGame(_authService);
+                createEnterGame.Show();
                 this.Close();
             } else {
                 MessageBox.Show("Registration failed.");

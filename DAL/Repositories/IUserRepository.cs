@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using SeaBattle.Models;
+using SeaBattle.Entities;
 namespace SeaBattle.Data;
 public interface IUserRepository {
-    Task<User> GetUserByUsernameAsync(string username);
-    Task AddUserAsync(User user);
+    Task<UserEntity> GetUserByUsernameAsync(string username);
+    Task AddUserAsync(UserEntity user);
 }

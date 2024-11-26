@@ -1,0 +1,17 @@
+<Window x:Class="SeaBattle.Views.CreateEnterGame"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SeaBattle.Views"
+        mc:Ignorable="d"
+        Title="LoginScreen" Height="300" Width="300" FontSize="14" Background="#04c582">
+    <Border Background="Black" CornerRadius="20" Margin="20">
+            <Canvas Margin="20">
+                <Button x:Name="createGame" Content="CreateGame" Foreground="White" Width="75" Height="32" Click="CreateGameClick"
+            Canvas.Left="-20" Canvas.Top="2" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <Button Name="enterGame" Content="EnterGame" Foreground="White" Width="75" Height="32" Click="EnterGameClick"
+            Canvas.Left="125" Canvas.Top="2" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+            </Canvas>
+    </Border>
+</Window>

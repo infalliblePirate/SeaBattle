@@ -1,6 +1,6 @@
 using Npgsql;
 
-using SeaBattle.Models;
+using SeaBattle.Entities;
 namespace SeaBattle.Data;
 
 public class UserRepository : IUserRepository {
@@ -10,7 +10,7 @@ public class UserRepository : IUserRepository {
         _connectionString = connectionString;
     }
 
-   public async Task<User> GetUserByUsernameAsync(string username) {
+   public async Task<UserEntity> GetUserByUsernameAsync(string username) {
         using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
 
@@ -20,7 +20,7 @@ public class UserRepository : IUserRepository {
 
         using var reader = await command.ExecuteReaderAsync();
         if (await reader.ReadAsync()) {
-            return new User {
+            return new UserEntity {
                 Id = reader.GetInt32(0),
                 Username = reader.GetString(1),
                 PasswordHash = reader.GetString(2)
@@ -30,7 +30,7 @@ public class UserRepository : IUserRepository {
         return null;
     }
 
-    public async Task AddUserAsync(User user) {
+    public async Task AddUserAsync(UserEntity user) {
         using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
 
