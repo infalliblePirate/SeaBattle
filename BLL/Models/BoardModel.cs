@@ -74,14 +74,14 @@ public class BoardModel {
                 for (int dy = -1; dy <= 1; dy++) {
                     int nx = x + dx;
                     int ny = y + dy;
-                    ChangeEmptyCellState(nx, ny, CellState.Blocked);
+                    ChangeCellStateIfNoShip(nx, ny, CellState.Blocked);
                 }
             }
         }
     }
 
-    private void ChangeEmptyCellState(int x, int y, CellState state) {
-        if (IsWithinBounds(x, y) && _grid[x, y] == CellState.Empty) {
+    private void ChangeCellStateIfNoShip(int x, int y, CellState state) {
+        if (IsWithinBounds(x, y) && _grid[x, y] != CellState.Ship) {
             _grid[x, y] = state;
         }
     }

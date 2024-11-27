@@ -38,7 +38,7 @@ public partial class PlaceShipsScreen : Window {
         if (sender is Button button) {
             var (row, col) = ((int, int))button.Tag;
             // place 1 deck test
-            ShipModel ship = new ShipModel(1, true, new Vector2D(col, row));
+            ShipModel ship = new ShipModel(4, true, new Vector2D(col, row));
             if(_gameService.PlaceShip(ship)) {
                 _gameService.PrintBoard();
                 MessageBox.Show($"Placed ship at: Row {row}, Column {col}");
