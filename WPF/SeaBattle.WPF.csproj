@@ -4,6 +4,10 @@
     <ProjectReference Include="..\BLL\SeaBattle.BLL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="FluentWPF" Version="0.10.2" />
+  </ItemGroup>
+
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>

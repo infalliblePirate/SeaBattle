@@ -31,9 +31,13 @@ namespace SeaBattle.Views
         }
 
         private async void EnterGameClick(object sender, RoutedEventArgs e) {
+            Console.WriteLine("Entered game");
              try {
                 if (int.TryParse(txtGameCode.Text, out int gameId)) {
                     await _userService.JoinGame(gameId);
+                    PlaceShipsScreen placeShipsScreen = new PlaceShipsScreen(_gameService);
+                    placeShipsScreen.Show();
+                    this.Close();
                 } else {
                     MessageBox.Show("Please enter a valid game code.");
                 }
