@@ -26,7 +26,7 @@ namespace SeaBattle.Views
         {
             var loginUser = await _userService.LoginUserAsync(txtUsername.Text, txtPassword.Password);
             if (loginUser != null) {
-                SessionService.Activeuser = loginUser;
+                SessionService.ActiveUser = loginUser;
                 CreateEnterGame createEnterGame = new CreateEnterGame(_gameService, _userService);
                 createEnterGame.Show();
                 this.Close();
@@ -38,7 +38,7 @@ namespace SeaBattle.Views
         private async void RegisterSubmitClick(object sender, RoutedEventArgs e) {
             var registeredUser = await _userService.RegisterUserAsync(txtUsername.Text, txtPassword.Password);
             if (registeredUser != null) {
-                SessionService.Activeuser = registeredUser;
+                SessionService.ActiveUser = registeredUser;
                 CreateEnterGame createEnterGame = new CreateEnterGame(_gameService, _userService);
                 createEnterGame.Show();
                 this.Close();

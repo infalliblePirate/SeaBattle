@@ -1,14 +1,6 @@
+using SeaBattle.Common;
+
 namespace SeaBattle.Models;
-
-public struct Vector2D {
-    public int X { get; set; }
-    public int Y { get; set; }
-
-    public Vector2D(int x, int y) {
-        X = x;
-        Y = y;
-    }
-}
 
 public class ShipModel  {
     public int NDecks { get; set; }

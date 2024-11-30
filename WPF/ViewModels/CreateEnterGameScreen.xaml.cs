@@ -19,9 +19,13 @@ namespace SeaBattle.Views
 
         private async void CreateGameClick(object sender, RoutedEventArgs e) {
             try {
-                var game = await _gameService.CreateGame();
+                var game = await _gameService.CreateGameAsync();
                 if (game != null) {
+                    SessionService.ActiveGame = game;
                     MessageBox.Show($"Game created with ID: {game.Id}");
+                    PlaceShipsScreen placeShipsScreen = new PlaceShipsScreen(_gameService);
+                    placeShipsScreen.Show();
+                    this.Close();
                 } else {
                     MessageBox.Show("Failed to create game.");
                 }
@@ -35,6 +39,7 @@ namespace SeaBattle.Views
              try {
                 if (int.TryParse(txtGameCode.Text, out int gameId)) {
                     await _userService.JoinGame(gameId);
+                    SessionService.ActiveGame = await _gameService.GetGameByIdAsync(gameId);
                     PlaceShipsScreen placeShipsScreen = new PlaceShipsScreen(_gameService);
                     placeShipsScreen.Show();
                     this.Close();

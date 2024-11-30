@@ -58,6 +58,6 @@ public class UserService {
     }
 
     public async Task JoinGame(int id) {
-        await _userRepository.JoinGame(id, SessionService.Activeuser.Id);
+        await _userRepository.JoinGame(id, SessionService.ActiveUser.Id);
     }
 }

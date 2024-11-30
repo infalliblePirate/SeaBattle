@@ -1,38 +1,19 @@
+using SeaBattle.Common;
+
 namespace SeaBattle.Models;
-public class BoardProps {
-    public int OneDeck { get; }
-    public int TwoDeck { get; }
-    public int ThreeDeck { get; }
-    public int FourDeck { get; }
-    public int Size { get; }
-
-    public BoardProps(int oneDeck = 4, int twoDeck = 3, int threeDeck = 2, int fourDeck = 1, int size = 10) {
-        OneDeck = oneDeck;
-        TwoDeck = twoDeck;
-        ThreeDeck = threeDeck;
-        FourDeck = fourDeck;
-        Size = size;
-    }
-}
-
-public enum CellState {
-    Empty,
-    Ship,
-    Blocked,
-    Hit,
-    Miss
-}
 
 public class BoardModel {
     private readonly BoardProps _props;
-    private readonly CellState[,] _grid;
+    public CellState[,] Grid { get; set; }
+    public List<ShipModel> Ships { get; set; }
 
     public BoardModel(BoardProps props) {
         _props = props;
-        _grid = new CellState[_props.Size, _props.Size];
+        Grid = new CellState[_props.Size, _props.Size];
+        Ships = new List<ShipModel>();
         for (int x = 0; x < _props.Size; x++) {
             for (int y = 0; y < _props.Size; y++) {
-                _grid[x, y] = CellState.Empty;
+                Grid[x, y] = CellState.Empty;
             }
         }
     }
@@ -46,10 +27,11 @@ public class BoardModel {
             int x = ship.IsHorizontal ? ship.Coords.X + i : ship.Coords.X;
             int y = ship.IsHorizontal ? ship.Coords.Y : ship.Coords.Y + i;
 
-            _grid[x, y] = CellState.Ship;
+            Grid[x, y] = CellState.Ship;
         }
 
         BlockSurroundingCells(ship);
+        Ships.Add(ship);
         return true;
     }
 
@@ -58,7 +40,7 @@ public class BoardModel {
             int x = ship.IsHorizontal ? ship.Coords.X + i : ship.Coords.X;
             int y = ship.IsHorizontal ? ship.Coords.Y : ship.Coords.Y + i;
 
-            if (!IsWithinBounds(x, y) || _grid[x, y] != CellState.Empty) {
+            if (!IsWithinBounds(x, y) || Grid[x, y] != CellState.Empty) {
                 return false;
             }
         }
@@ -81,8 +63,8 @@ public class BoardModel {
     }
 
     private void ChangeCellStateIfNoShip(int x, int y, CellState state) {
-        if (IsWithinBounds(x, y) && _grid[x, y] != CellState.Ship) {
-            _grid[x, y] = state;
+        if (IsWithinBounds(x, y) && Grid[x, y] != CellState.Ship) {
+            Grid[x, y] = state;
         }
     }
 
@@ -94,7 +76,7 @@ public class BoardModel {
     public void PrintBoard() {
         for (int y = 0; y < _props.Size; y++) {
             for (int x = 0; x < _props.Size; x++) {
-                char cell = _grid[x, y] switch {
+                char cell = Grid[x, y] switch {
                     CellState.Empty => '.',
                     CellState.Ship => 'S',
                     CellState.Blocked => 'B',
