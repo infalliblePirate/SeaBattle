@@ -3,24 +3,25 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:SeaBattle.Views"
         mc:Ignorable="d"
         Title="LoginScreen" Height="300" Width="300" FontSize="14" Background="#04c582">
+
     <Border Background="Black" CornerRadius="20" Margin="20">
         <StackPanel Margin="20">
             <Label Content="Login" Foreground="White" FontSize="25" HorizontalAlignment="Center"/>
             <Label Content="Username" Foreground="white"/>
-            <TextBox Name="txtUsername" Background="Gray" Foreground="White" FontSize="14" AcceptsReturn="True"/>
+            <TextBox Text="{Binding Username}" Background="Gray" Foreground="White" FontSize="14" AcceptsReturn="True"/>
             <Label Content="Password" Foreground="white"/>
-            <PasswordBox Name="txtPassword" Background="Gray" Foreground="White" FontSize="14"/>
+            <PasswordBox Background="Gray" Foreground="White" FontSize="14"
+                PasswordChanged="PasswordBox_PasswordChanged" />
             <Canvas Margin="20">
-                <Button x:Name="btnSubmit" Content="Submit" Foreground="White" Width="75" Height="32" Click="BtnSubmit_Click"
-            Canvas.Left="-20" Canvas.Top="2" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-
-                <Button Name="registerSubmit" Content="Register" Foreground="White" Width="75" Height="32" Click="RegisterSubmitClick"
-            Canvas.Left="125" Canvas.Top="2" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                <Button Content="Login" Command="{Binding LoginCommand}" Foreground="White" Width="75" Height="32"
+                        Canvas.Left="-20" Canvas.Top="2"/>
+                <Button Content="Register" Command="{Binding RegisterCommand}" Foreground="White" Width="75" Height="32"
+                        Canvas.Left="125" Canvas.Top="2"/>
             </Canvas>
-
         </StackPanel>
     </Border>
 </Window>
+
+

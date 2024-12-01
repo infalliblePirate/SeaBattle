@@ -16,8 +16,8 @@ public class GameMapper {
             User2Id = entity.User2Id,
             WinnerId = entity.WinnerId,
             Score = entity.Score,
-            Player1Board = BoardMapper.Deserialize(entity.Player1BoardSerialized),
-            Player2Board = BoardMapper.Deserialize(entity.Player2BoardSerialized),
+            // Player1Board = BoardMapper.Deserialize(entity.Player1BoardSerialized),
+            // Player2Board = BoardMapper.Deserialize(entity.Player2BoardSerialized),
             IsPlayer1Turn = entity.IsPlayer1Turn
         };
     }
@@ -31,8 +31,8 @@ public class GameMapper {
             User2Id = model.User2Id,
             WinnerId = model.WinnerId,
             Score = model.Score,
-            Player1BoardSerialized = BoardMapper.Serialize(model.Player1Board),
-            Player2BoardSerialized = BoardMapper.Serialize(model.Player2Board),
+            // Player1BoardSerialized = BoardMapper.Serialize(model.Player1Board),
+            // Player2BoardSerialized = BoardMapper.Serialize(model.Player2Board),
             IsPlayer1Turn = model.IsPlayer1Turn
         };
     }

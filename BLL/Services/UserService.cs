@@ -9,8 +9,8 @@ public class UserService {
         _userRepository = userRepository;
     }
 
-    public async Task<UserModel?> LoginUserAsync(string username, string password) {
-        var userEntity = await _userRepository.GetUserByUsernameAsync(username);
+    public UserModel? LoginUser(string username, string password) {
+        var userEntity = _userRepository.GetUserByUsername(username);
 
         if (userEntity == null || !VerifyPassword(password, userEntity.PasswordHash)) {
             return null;
@@ -24,8 +24,8 @@ public class UserService {
         return userModel;
     }
 
-    public async Task<UserModel?> RegisterUserAsync(string username, string password) {
-        var existing = await _userRepository.GetUserByUsernameAsync(username);
+    public UserModel? RegisterUser(string username, string password) {
+        var existing = _userRepository.GetUserByUsername(username);
         if (existing != null) {
             return null;
         }
@@ -33,7 +33,7 @@ public class UserService {
         var hashedPassword = HashPassword(password);
         var userEntity = new UserEntity { Username = username, PasswordHash = hashedPassword };
         try {
-            int userId = await _userRepository.AddUserAsync(userEntity);
+            int userId = _userRepository.AddUser(userEntity);
             var userModel = new UserModel {
                 Id = userId,
                 Username = userEntity.Username,
@@ -57,7 +57,7 @@ public class UserService {
         return password;
     }
 
-    public async Task JoinGame(int id) {
-        await _userRepository.JoinGame(id, SessionService.ActiveUser.Id);
+    public void JoinGame(int idGame, int userId) {
+        _userRepository.JoinGame(idGame, userId);
     }
 }

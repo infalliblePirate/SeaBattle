@@ -4,6 +4,7 @@ using System.Windows;
 using SeaBattle.Data;
 using SeaBattle.Services;
 using System.Runtime.InteropServices;
+using SeaBattle.ViewModels;
 
 namespace SeaBattle;
 
@@ -22,9 +23,18 @@ public partial class App : Application {
         var userService = new UserService(userRepo);
         var gameRepo = new GameRepository(connectionString);
         var gameService = new GameService(gameRepo);
+        var sessionService = new SessionService();
 
-        var loginScreen = new Views.LoginScreen(userService, gameService);
+        // var loginScreen = new Views.LoginScreen(userService, gameService);
+        var loginVM = new LoginViewModel(userService, gameService, sessionService);
 
+        // Create the View (LoginScreen) and bind it to the ViewModel
+        var loginScreen = new Views.LoginScreen
+        {
+            DataContext = loginVM
+        };
+
+        // Show the LoginScreen
         loginScreen.Show();
     }
 

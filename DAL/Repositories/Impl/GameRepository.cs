@@ -10,18 +10,18 @@ public class GameRepository : IGameRepository {
         _connectionString = connectionString;
     }
 
-    public async Task<List<GameEntity>> GetPlayedGamesByUsernameAsync(string username) {
+    public List<GameEntity> GetPlayedGamesByUsername(string username) {
         using var connection = new NpgsqlConnection(_connectionString);
-        await connection.OpenAsync();
+        connection.Open();
 
         return new List<GameEntity>();
     }
 
-    public async Task<int> AddGameAsync(GameEntity game) {
+    public int AddGame(GameEntity game) {
         using var connection = new NpgsqlConnection(_connectionString);
-        await connection.OpenAsync();
+        connection.Open();
 
-         var query = "INSERT INTO games (user1_id, player1_board, player2_board, is_player1_turn) " +
+        var query = "INSERT INTO games (user1_id, player1_board, player2_board, is_player1_turn) " +
                 "VALUES (@User1Id, @Player1BoardSerialized, @Player2BoardSerialized, @IsPlayer1Turn) RETURNING id;";
         using var command = new NpgsqlCommand(query, connection);
 
@@ -30,14 +30,14 @@ public class GameRepository : IGameRepository {
         command.Parameters.AddWithValue("Player2BoardSerialized", NpgsqlTypes.NpgsqlDbType.Jsonb, game.Player2BoardSerialized);
         command.Parameters.AddWithValue("IsPlayer1Turn", game.IsPlayer1Turn);
 
-        var result = await command.ExecuteScalarAsync();
+        var result = command.ExecuteScalar();
     
         return (int)result; // id
     }
 
-    public async Task<GameEntity> GetGameByIdAsync(int id) {
+    public GameEntity GetGameById(int id) {
         using var connection = new NpgsqlConnection(_connectionString);
-        await connection.OpenAsync();
+        connection.Open();
     
          var query = @"
             SELECT id, user1_id, user2_id, winner_id, player1_board, player2_board, is_player1_turn, score
@@ -47,8 +47,8 @@ public class GameRepository : IGameRepository {
         using var command = new NpgsqlCommand(query, connection);
         command.Parameters.AddWithValue("Id", id);
 
-        using var reader = await command.ExecuteReaderAsync();
-        if (await reader.ReadAsync())
+        using var reader = command.ExecuteReader();
+        if (reader.Read())
         {
             return new GameEntity
             {
@@ -66,11 +66,11 @@ public class GameRepository : IGameRepository {
         throw new ArgumentNullException($"Could not fetch game with specified id: {id}");
     }
 
-    public async void UpdateGameAsync(GameEntity game) {
+    public void UpdateGame(GameEntity game) {
         using var connection = new NpgsqlConnection(_connectionString);
-        await connection.OpenAsync();
+        connection.OpenAsync();
 
-         var query = @" UPDATE games
+        var query = @" UPDATE games
             SET 
                 user1_id = @User1Id,
                 user2_id = @User2Id,
@@ -92,7 +92,7 @@ public class GameRepository : IGameRepository {
         command.Parameters.AddWithValue("IsPlayer1Turn", game.IsPlayer1Turn);
         command.Parameters.AddWithValue("Id", game.Id);
 
-        await command.ExecuteNonQueryAsync();
+        command.ExecuteNonQuery();
     }
     
 }
