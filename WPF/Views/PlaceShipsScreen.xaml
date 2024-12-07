@@ -1,9 +1,19 @@
 <Window x:Class="SeaBattle.Views.PlaceShipsScreen"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:SeaBattle.Views"
         Title="Sea Battle" Height="500" Width="500">
     <Grid>
-        <ItemsControl ItemsSource="{Binding Board}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Center" Margin="10">
+            <Button Content="Toggle Orientation" Command="{Binding ToggleOrientationCommand}" Margin="5"/>
+        </StackPanel>
+
+        <ItemsControl ItemsSource="{Binding Board}" Grid.Row="1">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <UniformGrid Rows="10" Columns="10" />

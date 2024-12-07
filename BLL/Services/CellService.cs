@@ -20,8 +20,8 @@ public class CellService {
 
     public List<CellModel> GetCellsForPlayer(int gameId, int playerId)
     {
-        var cellEntities = _cellRepository.GetCellsForPlayer(gameId, playerId); // Fetch cells from the database
-        return cellEntities.Select(cell => CellMapper.ToCellModel(cell)).ToList(); // Convert to models if needed
+        var cellEntities = _cellRepository.GetCellsForPlayer(gameId, playerId); 
+        return cellEntities.Select(cell => CellMapper.ToCellModel(cell)).ToList();
     }
 
     public void CreateCell(int gameId, int userId, int row, int col, CellState state)
@@ -95,7 +95,7 @@ public class CellService {
                 }
             }
         }
-    }    
+    }
 
     private void ChangeCellStateIfNoShip(int x, int y, int gameId, int userId) 
     {
@@ -109,5 +109,4 @@ public class CellService {
     {
         return _cellRepository.IsCellAlreadyStored(row, col, gameId, userId, state.ToString());
     }
-    
 }
