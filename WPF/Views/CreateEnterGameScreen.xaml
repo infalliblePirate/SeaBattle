@@ -13,9 +13,9 @@
                 <RowDefinition Height="Auto"/> 
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>  <!-- Left column -->
-                <ColumnDefinition Width="Auto"/>  <!-- Center column -->
-                <ColumnDefinition Width="*"/>  <!-- Right column -->
+                <ColumnDefinition Width="*"/>  
+                <ColumnDefinition Width="Auto"/> 
+                <ColumnDefinition Width="*"/>  
             </Grid.ColumnDefinitions>
 
             <!-- Create Game Button -->

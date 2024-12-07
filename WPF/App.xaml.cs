@@ -5,6 +5,7 @@ using SeaBattle.Data;
 using SeaBattle.Services;
 using System.Runtime.InteropServices;
 using SeaBattle.ViewModels;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace SeaBattle;
 
@@ -22,7 +23,9 @@ public partial class App : Application {
         var userRepo = new UserRepository(connectionString);
         var userService = new UserService(userRepo);
         var gameRepo = new GameRepository(connectionString);
-        var gameService = new GameService(gameRepo);
+        var cellRepo = new CellRepository(connectionString);
+        var cellService = new CellService(cellRepo);
+        var gameService = new GameService(gameRepo, cellService);
         var sessionService = new SessionService();
 
         // var loginScreen = new Views.LoginScreen(userService, gameService);

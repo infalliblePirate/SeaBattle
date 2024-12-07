@@ -1,6 +1,6 @@
 using SeaBattle.Services;
 using SeaBattle.Utils;
-
+using SeaBattle.Views;
 using System.Windows;
 using System.Windows.Input;
 
@@ -37,19 +37,22 @@ public class CreateEnterGameViewModel : BaseViewModel
         CreateGameCommand = new RelayCommand((param) => OnCreate(), CanCreateGame);
     }
 
-    private bool CanEnterGame(object param) => !string.IsNullOrEmpty(GameCode);
+    private bool CanEnterGame(object param) => true;
     private bool CanCreateGame(object param) => true;
 
     private void OnCreate()
     {
         try {
-            var game = _gameService.CreateGame(_sessionService.ActiveUser.Id);
-            if (game != null) {
-                _sessionService.SetActiveGame(game);
-                MessageBox.Show($"Game created with ID: {game.Id}");
-                // PlaceShipsScreen placeShipsScreen = new PlaceShipsScreen(_gameService);
-                // placeShipsScreen.Show();
-            } else {
+            int? gameId = _gameService.CreateGame(_sessionService.ActiveUser.Id);
+            if (gameId.HasValue)
+            {
+                MessageBox.Show($"Game created with ID: {gameId.Value}");
+                var placeShipsVM = new PlaceShipsViewModel(gameId.Value, _gameService, _sessionService);
+                var placeShipsScreen = new PlaceShipsScreen(placeShipsVM);
+                placeShipsScreen.Show();
+            }
+            else
+            {
                 MessageBox.Show("Failed to create game.");
             }
         } catch (Exception ex) {
@@ -60,16 +63,19 @@ public class CreateEnterGameViewModel : BaseViewModel
     private void OnEnter()
     {
         try {
-            if (int.TryParse(GameCode, out int gameId)) {
+            if (int.TryParse(GameCode, out int gameId))
+            {
                 _userService.JoinGame(gameId, _sessionService.ActiveUser.Id);
-                // SessionService.ActiveGame = _gameService.GetGameByIdAsync(gameId);
-                // PlaceShipsScreen placeShipsScreen = new PlaceShipsScreen(_gameService);
-                MessageBox.Show("Success");
-            } else {
+                var placeShipsVM = new PlaceShipsViewModel(gameId,_gameService, _sessionService);
+                var placeShipsScreen = new PlaceShipsScreen(placeShipsVM);
+                placeShipsScreen.Show();
+            } else
+            {
                 MessageBox.Show("Please enter a valid game code.");
             }
         }
-        catch (Exception ex) {
+        catch (Exception ex)
+        {
             MessageBox.Show($"An error occurred: {ex.Message}");
         }
     }

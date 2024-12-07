@@ -1,5 +1,3 @@
-using Newtonsoft.Json;
-
 using SeaBattle.Models;
 using SeaBattle.Data;
 using SeaBattle.Entities;
@@ -8,71 +6,57 @@ using SeaBattle.Common;
 
 namespace SeaBattle.Services;
 
-public class GameService {
+public class GameService 
+{
+    private readonly CellService _cellService;
     private readonly IGameRepository _gameRepository;
 
-    public GameService(IGameRepository gameRepository) {
+    public GameService(IGameRepository gameRepository, CellService cellService) 
+    {
         _gameRepository = gameRepository;
+        _cellService = cellService;
     }
 
-    public GameModel CreateGame(int joinedPlayerId) {
-        // TODO: mb create a model and then
-        // if (SessionService.ActiveUser?.Id == null) {
-        //     throw new InvalidOperationException("No active user session found.");
-        // }
+    public int? CreateGame(int joinedPlayerId)
+    {
+        var gameEntity = new GameEntity 
+        { 
+            User1Id = joinedPlayerId,
+            IsPlayer1Turn = true
+        };
 
-        // int joinedPlayerId = SessionService.ActiveUser.Id;
-        var gameEntity = new GameEntity { 
-                User1Id = joinedPlayerId,
-                Player1BoardSerialized = JsonConvert.SerializeObject(new BoardModel()),
-                Player2BoardSerialized = JsonConvert.SerializeObject(new BoardModel()),
-                IsPlayer1Turn = true
-            };
-
-        try {
+        try 
+        {
             int gameId = _gameRepository.AddGame(gameEntity);
             gameEntity.Id = gameId;
-            return GameMapper.ToGameModel(gameEntity);
+            // return GameMapper.ToGameModel(gameEntity);
+            return gameId;
         } catch (Exception ex) {
             Console.Error.WriteLine($"Error creating game: {ex.Message}");
             return null;
         }
     }
 
-    public GameModel GetGameById(int id) {
+    public GameModel GetGameById(int id) 
+    {
         var gameEntity = _gameRepository.GetGameById(id); 
         return GameMapper.ToGameModel(gameEntity);
     }
 
-    // public async Task<bool> PlaceShipAsync(ShipModel ship) {
-    //     // todo: ensure only 10 ships can be placed
-    //     var game = SessionService.ActiveGame;
-    //     var activePlayerBoard = game.User1Id == SessionService.ActiveUser.Id
-    //         ? game.Player1Board
-    //         : game.Player2Board;
-    //     bool isPlaced = activePlayerBoard.PlaceShip(ship);
-    //     if (isPlaced) {
-    //         // var dto = new GameDto(game); 
-    //         _gameRepository.UpdateGameAsync(GameMapper.ToGameEntity(game));
-    //     }
-    //     return isPlaced;
-    // }
+    public bool PlaceShip(int gameId, int playerId, ShipModel ship)
+    {
+        if (!_cellService.CanPlaceShip(gameId, playerId, ship))
+        {
+            return false;
+        }
 
-    // public async void PrintBoardAsync() {
-    //     var game = SessionService.ActiveGame;
-    //     var activePlayerBoard = game.User1Id == SessionService.ActiveUser.Id
-    //         ? game.Player1Board
-    //         : game.Player2Board;
-    //     activePlayerBoard.PrintBoard();
-    // }
+        _cellService.PlaceShip(gameId, playerId, ship);
+        return true;
+    }
 
-    // // TODO: remove, temporary
-    // public async Task<CellState[,]> GetBoardStateAsync(int gameId) {
-    //     var game = SessionService.ActiveGame;
-    //     var activePlayerBoard = game.User1Id == SessionService.ActiveUser.Id
-    //         ? game.Player1Board
-    //         : game.Player2Board;
-    //     return activePlayerBoard.Grid;
-    // }
+    public List<CellModel> GetCellsForPlayer(int gameId, int playerId)
+    {
+        return _cellService.GetCellsForPlayer(gameId, playerId);
+    }
 
 }

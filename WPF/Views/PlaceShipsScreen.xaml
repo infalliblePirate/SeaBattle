@@ -1,8 +1,21 @@
 <Window x:Class="SeaBattle.Views.PlaceShipsScreen"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Sea Battle" Height="450" Width="450">
-    <!-- <Grid>
-        <UniformGrid Name="GameBoard" Rows="10" Columns="10" Margin="10" />
-    </Grid> -->
+        Title="Sea Battle" Height="500" Width="500">
+    <Grid>
+        <ItemsControl ItemsSource="{Binding Board}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Rows="10" Columns="10" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Button Content="{Binding State}" 
+                            Command="{Binding PlaceShipCommand}" 
+                            CommandParameter="{Binding}" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
 </Window>

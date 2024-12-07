@@ -4,16 +4,16 @@ namespace SeaBattle.Models;
 
 public class BoardModel {
     private readonly BoardProps _props;
-    public CellState[,] Grid { get; set; }
-    public List<ShipModel> Ships { get; set; }
+    private CellState[,] _grid;
+    private List<ShipModel> _ships;
 
     public BoardModel(BoardProps props) {
         _props = props;
-        Grid = new CellState[_props.Size, _props.Size];
-        Ships = new List<ShipModel>();
+        _grid = new CellState[_props.Size, _props.Size];
+        _ships = new List<ShipModel>();
         for (int x = 0; x < _props.Size; x++) {
             for (int y = 0; y < _props.Size; y++) {
-                Grid[x, y] = CellState.Empty;
+                _grid[x, y] = CellState.Empty;
             }
         }
     }
@@ -27,11 +27,11 @@ public class BoardModel {
             int x = ship.IsHorizontal ? ship.Coords.X + i : ship.Coords.X;
             int y = ship.IsHorizontal ? ship.Coords.Y : ship.Coords.Y + i;
 
-            Grid[x, y] = CellState.Ship;
+            _grid[x, y] = CellState.Ship;
         }
 
         BlockSurroundingCells(ship);
-        Ships.Add(ship);
+        _ships.Add(ship);
         return true;
     }
 
@@ -40,7 +40,7 @@ public class BoardModel {
             int x = ship.IsHorizontal ? ship.Coords.X + i : ship.Coords.X;
             int y = ship.IsHorizontal ? ship.Coords.Y : ship.Coords.Y + i;
 
-            if (!IsWithinBounds(x, y) || Grid[x, y] != CellState.Empty) {
+            if (!IsWithinBounds(x, y) || _grid[x, y] != CellState.Empty) {
                 return false;
             }
         }
@@ -63,8 +63,8 @@ public class BoardModel {
     }
 
     private void ChangeCellStateIfNoShip(int x, int y, CellState state) {
-        if (IsWithinBounds(x, y) && Grid[x, y] != CellState.Ship) {
-            Grid[x, y] = state;
+        if (IsWithinBounds(x, y) && _grid[x, y] != CellState.Ship) {
+            _grid[x, y] = state;
         }
     }
 
@@ -76,7 +76,7 @@ public class BoardModel {
     public void PrintBoard() {
         for (int y = 0; y < _props.Size; y++) {
             for (int x = 0; x < _props.Size; x++) {
-                char cell = Grid[x, y] switch {
+                char cell = _grid[x, y] switch {
                     CellState.Empty => '.',
                     CellState.Ship => 'S',
                     CellState.Blocked => 'B',

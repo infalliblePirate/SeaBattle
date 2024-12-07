@@ -72,7 +72,6 @@ public class LoginViewModel : BaseViewModel
             var currentWindow = Application.Current.MainWindow;
             currentWindow?.Close();
             createEnterGameScreen.Show();
-            MessageBox.Show("Can enter.");
         }
         else
         {
@@ -94,7 +93,6 @@ public class LoginViewModel : BaseViewModel
             var currentWindow = Application.Current.MainWindow;
             currentWindow?.Close();
             createEnterGameScreen.Show();
-            MessageBox.Show("Can enter.");
         }
         else
         {

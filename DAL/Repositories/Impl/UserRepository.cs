@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore.Update.Internal;
 using Npgsql;
 
 using SeaBattle.Entities;
@@ -42,7 +41,6 @@ public class UserRepository : IUserRepository {
 
         var result = command.ExecuteScalar();
     
-        // Return the Id of the newly created user
         return (int)result;
     }
 
