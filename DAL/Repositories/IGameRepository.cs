@@ -11,4 +11,5 @@ public interface IGameRepository {
     int AddGame(GameEntity game);
     GameEntity GetGameById(int id);
     void UpdateGame(GameEntity game);
+    void UpdatePlayerReadyStatus(int gameId, int playerId, bool isReady);
 } 

@@ -59,4 +59,14 @@ public class GameService
         return _cellService.GetCellsForPlayer(gameId, playerId);
     }
 
+    public void SetPlayerReady(int gameId, int playerId, bool isReady)
+    {
+        _gameRepository.UpdatePlayerReadyStatus(gameId, playerId, isReady);
+    }
+
+    public bool AreBothPlayersReady(int gameId)
+    {
+        var game = _gameRepository.GetGameById(gameId);
+        return game.IsPlayer1Ready && game.IsPlayer2Ready;
+    }
 }

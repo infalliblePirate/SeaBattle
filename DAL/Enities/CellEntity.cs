@@ -1,6 +1,7 @@
 namespace SeaBattle.Entities;
 
-public class CellEntity {
+public class CellEntity
+{
     public int Id { get; set; }
     public int GameId { get; set; }
     public int UserId { get; set; }

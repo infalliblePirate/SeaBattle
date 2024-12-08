@@ -2,7 +2,8 @@ using SeaBattle.Common;
 
 namespace SeaBattle.Entities;
 
-public class ShipEntity {
+public class ShipEntity 
+{
     public int NDecks { get; set; }
     public int Health { get; set; }
     public bool IsHorizontal { get; set; }
