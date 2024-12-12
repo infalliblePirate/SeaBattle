@@ -1,18 +1,20 @@
 using System.Collections.ObjectModel;
 using System.Windows;
-using SeaBattle.Models;
+using SeaBattle.Contexts;
+using SeaBattle.Views;
 using SeaBattle.Services;
 using SeaBattle.Utils;
+using SeaBattle.Models;
 using SeaBattle.Common;
 
 namespace SeaBattle.ViewModels;
-public class PlaceShipsViewModel : BaseViewModel
+public class PlaceShipsViewModel : BaseViewModel, IInitializable
 {
     private System.Timers.Timer _readyCheckTimer;
-    private bool _bothPlayersReady = false;
     private readonly GameService _gameService;
     private readonly SessionService _sessionService;
-    private readonly int _gameId;
+    private readonly INavigationService _navigationService;
+    private int _gameId;
 
     public ObservableCollection<CellViewModel> Board { get; } = new ObservableCollection<CellViewModel>();
 
@@ -24,11 +26,11 @@ public class PlaceShipsViewModel : BaseViewModel
     private int _currentShipDecks;
     private bool _isHorizontal = true;
 
-    public PlaceShipsViewModel(int gameId, GameService gameService, SessionService sessionService)
+    public PlaceShipsViewModel(GameService gameService, SessionService sessionService, INavigationService navigationService)
     {
+        _navigationService = navigationService;
         _gameService = gameService;
         _sessionService = sessionService;
-        _gameId = gameId;
         _boardProps = new BoardProps();
 
         InitializeBoard();
@@ -36,6 +38,14 @@ public class PlaceShipsViewModel : BaseViewModel
 
         PlaceNextShipCommand = new RelayCommand(param => PromptForNextShip());
         ToggleOrientationCommand = new RelayCommand(param => ToggleOrientation());
+    }
+
+    public void InitializeAdditional(object param)
+    {
+        if (param is AddGameContext gameContext)
+        {
+            _gameId = gameContext.GameId;
+        }
     }
 
     private void InitializeBoard()
@@ -163,13 +173,23 @@ public class PlaceShipsViewModel : BaseViewModel
     {
         if (_gameService.AreBothPlayersReady(_gameId))
         {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                StopReadyCheckTimer();
-                MessageBox.Show("Success!");
-                //MoveToNextScreen();
-            });
+            Application.Current.Dispatcher.Invoke(StopReadyCheckTimer);
+            HandleSuccess();
         }
     }
-}
 
+    private void HandleSuccess()
+    {
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            MessageBox.Show("Success!");
+            _navigationService.NavigateTo<BattleViewModel>(new AddGameContext(_gameId));
+            // var battleVM = new BattleViewModel(_gameId, _gameService, _sessionService);
+            // var battleScreen = new BattleView(battleVM);
+
+            // var currentWindow = Application.Current.MainWindow;
+            // currentWindow?.Close();
+            // battleScreen.Show();
+        });
+    }
+}

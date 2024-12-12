@@ -1,9 +1,9 @@
 using System.Windows;
 
 namespace SeaBattle.Views;
-public partial class CreateEnterGame : Window
+public partial class CreateEnterGameView : Window
 {
-    public CreateEnterGame()
+    public CreateEnterGameView()
     {
         InitializeComponent();
     }

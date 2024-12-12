@@ -56,8 +56,4 @@ public class UserService {
         // TODO: store hashed
         return password;
     }
-
-    public void JoinGame(int idGame, int userId) {
-        _userRepository.JoinGame(idGame, userId);
-    }
 }

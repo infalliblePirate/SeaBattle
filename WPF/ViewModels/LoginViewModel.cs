@@ -7,13 +7,13 @@ using System.Windows;
 using System.Windows.Input;
 
 namespace SeaBattle.ViewModels;
-public class LoginViewModel : BaseViewModel
+public class LoginViewModel : BaseViewModel, IInitializable
 {
     private string _username;
     private string _password;
     
+    private readonly INavigationService _navigationService;
     private readonly UserService _userService;
-    private readonly GameService _gameService;
     private readonly SessionService _sessionService;
 
     public ICommand LoginCommand { get; }
@@ -42,13 +42,15 @@ public class LoginViewModel : BaseViewModel
             ((RelayCommand)RegisterCommand).RaiseCanExecuteChanged();
         }
     }
+
+    public void InitializeAdditional(object param) {}
     
 
-    public LoginViewModel(UserService userService, GameService gameService, SessionService sessionService)
+    public LoginViewModel(UserService userService, SessionService sessionService, INavigationService navigationService)
     {
         _userService = userService ?? throw new ArgumentNullException(nameof(userService));
-        _gameService = gameService ?? throw new ArgumentNullException(nameof(gameService));
         _sessionService = sessionService ?? throw new ArgumentNullException(nameof(sessionService));
+        _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
 
         LoginCommand = new RelayCommand((param) => OnLogin(), CanLogin);
         RegisterCommand = new RelayCommand((param) => OnRegister(), CanRegister);
@@ -64,14 +66,7 @@ public class LoginViewModel : BaseViewModel
         if (loginUser != null)
         {
             _sessionService.SetActiveUser(loginUser);
-            var createEnterVM = new CreateEnterGameViewModel(_userService, _gameService, _sessionService);
-            var createEnterGameScreen = new Views.CreateEnterGame
-            {
-                DataContext = createEnterVM
-            };
-            var currentWindow = Application.Current.MainWindow;
-            currentWindow?.Close();
-            createEnterGameScreen.Show();
+            _navigationService.NavigateTo<CreateEnterGameViewModel>();
         }
         else
         {
@@ -85,14 +80,7 @@ public class LoginViewModel : BaseViewModel
         if (registeredUser != null)
         {
             _sessionService.SetActiveUser(registeredUser);
-            var createEnterVM = new CreateEnterGameViewModel(_userService, _gameService, _sessionService);
-            var createEnterGameScreen = new Views.LoginScreen
-            {
-                DataContext = createEnterVM
-            };
-            var currentWindow = Application.Current.MainWindow;
-            currentWindow?.Close();
-            createEnterGameScreen.Show();
+            _navigationService.NavigateTo<CreateEnterGameViewModel>();
         }
         else
         {

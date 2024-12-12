@@ -59,7 +59,7 @@ public class CellRepository : ICellRepository
             };
         }
 
-        throw new ArgumentNullException($"Could not fetch game with specified id: {id}");
+         throw new InvalidOperationException($"Cell not found for {id}");
     }
 
     public bool IsCellAlreadyStored(int row, int col, int gameId, int userId, string state)
@@ -118,6 +118,43 @@ public class CellRepository : ICellRepository
         return cells;
     }
 
+    public LinkedList<CellEntity> GetNotBlockedCellsForPlayer(int gameId, int playerId)
+    {
+        using var connection = new NpgsqlConnection(_connectionString);
+        connection.Open();
+
+        var query = @"
+            SELECT id, game_id, player_id, row, col, state
+            FROM cells
+            WHERE game_id = @GameId AND player_id = @UserId AND state != @Blocked;";
+
+        using var command = new NpgsqlCommand(query, connection);
+        command.Parameters.AddWithValue("GameId", gameId);
+        command.Parameters.AddWithValue("UserId", playerId);
+        command.Parameters.AddWithValue("Blocked", CellState.Blocked.ToString());
+
+        using var reader = command.ExecuteReader();
+        var cells = new LinkedList<CellEntity>();
+
+        while (reader.Read())
+        {
+            var cell = new CellEntity
+            {
+                Id = reader.GetInt32(reader.GetOrdinal("id")),
+                GameId = reader.GetInt32(reader.GetOrdinal("game_id")),
+                UserId = reader.GetInt32(reader.GetOrdinal("player_id")),
+                Row = reader.GetInt32(reader.GetOrdinal("row")),
+                Col = reader.GetInt32(reader.GetOrdinal("col")),
+                State = reader.GetString(reader.GetOrdinal("state")),
+            };
+
+            cells.AddLast(cell);
+        }
+
+        return cells;
+    }
+
+
     public CellEntity GetCell(int row, int col, int gameId, int userId)
     {
         using var connection = new NpgsqlConnection(_connectionString);
@@ -155,7 +192,7 @@ public class CellRepository : ICellRepository
     public void UpdateCell(CellEntity cell)
     {
         using var connection = new NpgsqlConnection(_connectionString);
-        connection.OpenAsync();
+        connection.Open();
 
         var query = @" UPDATE cells
             SET 
@@ -177,4 +214,57 @@ public class CellRepository : ICellRepository
 
         command.ExecuteNonQuery();
     }
+
+    public bool FireAtOpponent(int gameId, int opponentId, int x, int y)
+    {
+        using var connection = new NpgsqlConnection(_connectionString);
+        connection.Open();
+
+        var query = @"
+        SELECT state
+        FROM cells
+        WHERE game_id = @GameId AND player_id = @OpponentId AND row = @Row AND col = @Col;";
+
+        using var command = new NpgsqlCommand(query, connection);
+        command.Parameters.AddWithValue("GameId", gameId);
+        command.Parameters.AddWithValue("OpponentId", opponentId);
+        command.Parameters.AddWithValue("Row", x);
+        command.Parameters.AddWithValue("Col", y);
+
+        var result = command.ExecuteScalar();
+
+        if (result != null && result.ToString() == CellState.Ship.ToString())
+        {
+            var updateQuery = @"
+                UPDATE cells
+                SET state = 'Hit'
+                WHERE game_id = @GameId AND player_id = @OpponentId AND row = @Row AND col = @Col;";
+
+            using var updateCommand = new NpgsqlCommand(updateQuery, connection);
+            updateCommand.Parameters.AddWithValue("GameId", gameId);
+            updateCommand.Parameters.AddWithValue("OpponentId", opponentId);
+            updateCommand.Parameters.AddWithValue("Row", x);
+            updateCommand.Parameters.AddWithValue("Col", y);
+            updateCommand.ExecuteNonQuery();
+
+            return true;
+        }
+        else
+        {
+            var updateQuery = @"
+                UPDATE cells
+                SET state = 'Miss'
+                WHERE game_id = @GameId AND player_id = @OpponentId AND row = @Row AND col = @Col;";
+
+            using var updateCommand = new NpgsqlCommand(updateQuery, connection);
+            updateCommand.Parameters.AddWithValue("GameId", gameId);
+            updateCommand.Parameters.AddWithValue("OpponentId", opponentId);
+            updateCommand.Parameters.AddWithValue("Row", x);
+            updateCommand.Parameters.AddWithValue("Col", y);
+            updateCommand.ExecuteNonQuery();
+
+            return false; 
+        }
+    }
+
 }

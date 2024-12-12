@@ -24,6 +24,17 @@ public class CellService {
         return cellEntities.Select(cell => CellMapper.ToCellModel(cell)).ToList();
     }
 
+    public List<CellModel> GetNotBlockedCellsForPlayer(int gameId, int playerId)
+    {
+        var cellEntities = _cellRepository.GetNotBlockedCellsForPlayer(gameId, playerId); 
+        return cellEntities.Select(cell => CellMapper.ToCellModel(cell)).ToList();
+    }
+    
+    public bool FireAtOpponent(int gameId, int opponentId, int x, int y)
+    {
+        return _cellRepository.FireAtOpponent(gameId, opponentId, x, y);
+    }
+
     public void CreateCell(int gameId, int userId, int row, int col, CellState state)
     {
         var cellEntity = new CellEntity 

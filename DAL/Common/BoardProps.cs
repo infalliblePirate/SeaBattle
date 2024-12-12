@@ -7,7 +7,8 @@ public class BoardProps {
     public int FourDeck { get; }
     public int Size { get; }
 
-    public BoardProps(int oneDeck = 4, int twoDeck = 3, int threeDeck = 2, int fourDeck = 1, int size = 10) {
+    public BoardProps(int oneDeck = 4, int twoDeck = 3, int threeDeck = 2, int fourDeck = 1, int size = 10)
+    {
         OneDeck = oneDeck;
         TwoDeck = twoDeck;
         ThreeDeck = threeDeck;

@@ -17,10 +17,8 @@ public class GameRepository : IGameRepository
         return new List<GameEntity>();
     }
 
-    public int AddGame(GameEntity game)
+    public int CreateGame(int user1Id)
     {
-        if (game == null) throw new ArgumentNullException(nameof(game));
-
         using var connection = new NpgsqlConnection(_connectionString);
         connection.Open();
 
@@ -28,17 +26,40 @@ public class GameRepository : IGameRepository
             INSERT INTO games (user1_id, is_player1_turn, is_player1_ready, is_player2_ready)
             VALUES (@User1Id, @IsPlayer1Turn, @IsPlayer1Ready, @IsPlayer2Ready)
             RETURNING id;";
-        
+
         using var command = new NpgsqlCommand(query, connection);
 
-        command.Parameters.AddWithValue("@User1Id", game.User1Id);
-        command.Parameters.AddWithValue("@IsPlayer1Turn", game.IsPlayer1Turn);
-        command.Parameters.AddWithValue("@IsPlayer1Ready", game.IsPlayer1Ready);
-        command.Parameters.AddWithValue("@IsPlayer2Ready", game.IsPlayer2Ready);
+        command.Parameters.AddWithValue("@User1Id", user1Id);
+        command.Parameters.AddWithValue("@IsPlayer1Turn", true);
+        command.Parameters.AddWithValue("@IsPlayer1Ready", false);
+        command.Parameters.AddWithValue("@IsPlayer2Ready", false);
 
         var result = command.ExecuteScalar();
         return Convert.ToInt32(result);
     }
+
+
+    public void AddOpponentToGame(int gameId, int opponentId)
+    {
+        using var connection = new NpgsqlConnection(_connectionString);
+        connection.Open();
+
+        const string query = @"
+            UPDATE games
+            SET user2_id = @OpponentId
+            WHERE id = @GameId AND user2_id IS NULL;";
+
+        using var command = new NpgsqlCommand(query, connection);
+        command.Parameters.AddWithValue("@GameId", gameId);
+        command.Parameters.AddWithValue("@OpponentId", opponentId);
+
+        var rowsAffected = command.ExecuteNonQuery();
+        if (rowsAffected == 0)
+        {
+            throw new InvalidOperationException("Unable to add opponent to game.");
+        }
+    }
+
 
     public GameEntity GetGameById(int id)
     {
@@ -134,5 +155,78 @@ public class GameRepository : IGameRepository
         command.Parameters.AddWithValue("@Id", game.Id);
 
         command.ExecuteNonQuery();
+    }
+
+    public int GetOpponentId(int gameId, int playerId)
+    {
+        using var connection = new NpgsqlConnection(_connectionString);
+        connection.Open();
+
+        var query = @"
+            SELECT 
+                CASE 
+                    WHEN user1_id = @PlayerId THEN user2_id
+                    WHEN user2_id = @PlayerId THEN user1_id
+                END as opponent_id
+            FROM games
+            WHERE id = @GameId;";
+
+        using var command = new NpgsqlCommand(query, connection);
+        command.Parameters.AddWithValue("GameId", gameId);
+        command.Parameters.AddWithValue("PlayerId", playerId);
+
+        var result = command.ExecuteScalar();
+        if (result != DBNull.Value && result != null)
+        {
+            return (int)result;
+        }
+
+        throw new InvalidOperationException("Opponent not found.");
+    }
+
+    public bool IsPlayerTurn(int gameId, int playerId)
+    {
+        using var connection = new NpgsqlConnection(_connectionString);
+        connection.Open();
+
+        const string query = @"
+            SELECT 
+                (is_player1_turn AND user1_id = @PlayerId) OR
+                (NOT is_player1_turn AND user2_id = @PlayerId) AS is_turn
+            FROM games
+            WHERE id = @GameId;";
+
+        using var command = new NpgsqlCommand(query, connection);
+        command.Parameters.AddWithValue("GameId", gameId);
+        command.Parameters.AddWithValue("PlayerId", playerId);
+
+        var result = command.ExecuteScalar();
+
+        if (result != null && result != DBNull.Value)
+        {
+            return Convert.ToBoolean(result);
+        }
+
+        throw new InvalidOperationException("Game or player not found.");
+    }
+
+    public void SwitchTurn(int gameId)
+    {
+        using var connection = new NpgsqlConnection(_connectionString);
+        connection.Open();
+
+        const string query = @"
+            UPDATE games
+            SET is_player1_turn = NOT is_player1_turn
+            WHERE id = @GameId;";
+
+        using var command = new NpgsqlCommand(query, connection);
+        command.Parameters.AddWithValue("@GameId", gameId);
+
+        var rowsAffected = command.ExecuteNonQuery();
+        if (rowsAffected == 0)
+        {
+            throw new InvalidOperationException("Unable to switch turn. Game not found.");
+        }
     }
 }

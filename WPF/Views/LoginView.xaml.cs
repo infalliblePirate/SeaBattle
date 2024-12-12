@@ -3,9 +3,9 @@ using System.Windows.Controls;
 using SeaBattle.ViewModels;
 
 namespace SeaBattle.Views;
-public partial class LoginScreen : Window
+public partial class LoginView : Window
 {
-    public LoginScreen()
+    public LoginView()
     {
         InitializeComponent();
     }

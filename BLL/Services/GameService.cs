@@ -2,7 +2,6 @@ using SeaBattle.Models;
 using SeaBattle.Data;
 using SeaBattle.Entities;
 using SeaBattle.Mappers;
-using SeaBattle.Common;
 
 namespace SeaBattle.Services;
 
@@ -19,22 +18,27 @@ public class GameService
 
     public int? CreateGame(int joinedPlayerId)
     {
-        var gameEntity = new GameEntity 
-        { 
-            User1Id = joinedPlayerId,
-            IsPlayer1Turn = true
-        };
-
         try 
         {
-            int gameId = _gameRepository.AddGame(gameEntity);
-            gameEntity.Id = gameId;
-            // return GameMapper.ToGameModel(gameEntity);
+            int gameId = _gameRepository.CreateGame(joinedPlayerId);
             return gameId;
-        } catch (Exception ex) {
+        } catch (Exception ex) 
+        {
             Console.Error.WriteLine($"Error creating game: {ex.Message}");
             return null;
         }
+    }
+
+    public void AddOpponentToGame(int gameId, int opponentId)
+    {
+        var gameEntity = _gameRepository.GetGameById(gameId);
+    
+        if (gameEntity.User2Id != null)
+        {
+            throw new InvalidOperationException("Game already has two players.");
+        }
+
+        _gameRepository.AddOpponentToGame(gameId, opponentId);
     }
 
     public GameModel GetGameById(int id) 
@@ -59,6 +63,11 @@ public class GameService
         return _cellService.GetCellsForPlayer(gameId, playerId);
     }
 
+    public List<CellModel> GetNotBlockedCellsForPlayer(int gameId, int playerId) 
+    {
+        return _cellService.GetNotBlockedCellsForPlayer(gameId, playerId);
+    }
+
     public void SetPlayerReady(int gameId, int playerId, bool isReady)
     {
         _gameRepository.UpdatePlayerReadyStatus(gameId, playerId, isReady);
@@ -68,5 +77,25 @@ public class GameService
     {
         var game = _gameRepository.GetGameById(gameId);
         return game.IsPlayer1Ready && game.IsPlayer2Ready;
+    }
+
+    public int GetOpponentId(int gameId, int playerId)
+    {
+        return _gameRepository.GetOpponentId(gameId, playerId);
+    }
+    
+    public bool FireAtOpponent(int _gameId, int opponentId, int x, int y) 
+    {
+        return _cellService.FireAtOpponent(_gameId, opponentId, x, y);
+    }
+
+    public bool IsPlayerTurn(int gameId, int playerId)
+    {
+        return _gameRepository.IsPlayerTurn(gameId, playerId);
+    }
+
+    public void SwitchTurn(int gameId)
+    {
+        _gameRepository.SwitchTurn(gameId);
     }
 }
