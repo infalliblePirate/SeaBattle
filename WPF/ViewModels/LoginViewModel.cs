@@ -66,7 +66,7 @@ public class LoginViewModel : BaseViewModel, IInitializable
         if (loginUser != null)
         {
             _sessionService.SetActiveUser(loginUser);
-            _navigationService.NavigateTo<CreateEnterGameViewModel>();
+            _navigationService.NavigateTo<GameLobbyViewModel>();
         }
         else
         {
@@ -80,7 +80,7 @@ public class LoginViewModel : BaseViewModel, IInitializable
         if (registeredUser != null)
         {
             _sessionService.SetActiveUser(registeredUser);
-            _navigationService.NavigateTo<CreateEnterGameViewModel>();
+            _navigationService.NavigateTo<GameLobbyViewModel>();
         }
         else
         {

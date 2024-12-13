@@ -184,12 +184,6 @@ public class PlaceShipsViewModel : BaseViewModel, IInitializable
         {
             MessageBox.Show("Success!");
             _navigationService.NavigateTo<BattleViewModel>(new AddGameContext(_gameId));
-            // var battleVM = new BattleViewModel(_gameId, _gameService, _sessionService);
-            // var battleScreen = new BattleView(battleVM);
-
-            // var currentWindow = Application.Current.MainWindow;
-            // currentWindow?.Close();
-            // battleScreen.Show();
         });
     }
 }

@@ -1,7 +1,8 @@
 using SeaBattle.Models;
 using SeaBattle.Data;
-using SeaBattle.Entities;
+using SeaBattle.Common;
 using SeaBattle.Mappers;
+using SeaBattle.Dtos;
 
 namespace SeaBattle.Services;
 
@@ -63,6 +64,11 @@ public class GameService
         return _cellService.GetCellsForPlayer(gameId, playerId);
     }
 
+    public List<GameSummaryDto> GetGameSummaries(int playerId)
+    {
+        return _gameRepository.GetGameSummariesByUserId(playerId);
+    }
+
     public List<CellModel> GetNotBlockedCellsForPlayer(int gameId, int playerId) 
     {
         return _cellService.GetNotBlockedCellsForPlayer(gameId, playerId);
@@ -98,4 +104,54 @@ public class GameService
     {
         _gameRepository.SwitchTurn(gameId);
     }
+
+    public GameResultDto GetGameResult(int gameId)
+    {
+        var game = GetGameById(gameId);
+
+        foreach (var user in new[] { game.User1Id, game.User2Id })
+        {
+            if (AreAllShipsSunk(gameId, user))
+            {
+                var winnerId = user == game.User1Id ? game.User2Id : game.User1Id;
+                SetWinner(gameId, winnerId);
+                return new GameResultDto
+                {
+                    IsGameOver = true,
+                    WinnerId = winnerId,
+                    Score = game.Score
+                };
+            }
+        }
+
+        return new GameResultDto
+        {
+            IsGameOver = false,
+            WinnerId = null,
+            Score = game.Score
+        };
+    }
+
+
+    public int GetWinnerId(int gameId)
+    {
+        var game = GetGameById(gameId); // todo exeptions if not found etc
+        if (game.WinnerId.HasValue)
+            return game.WinnerId.Value;
+        return -1; 
+    }   
+
+    private bool AreAllShipsSunk(int gameId, int? playerId)
+    {
+        if (playerId == null) throw new ArgumentNullException(nameof(playerId), "Player ID cannot be null.");
+        var playerCells = GetCellsForPlayer(gameId, playerId.Value);
+        return !playerCells.Any(cell => cell.State == CellState.Ship);
+    }
+
+    private void SetWinner(int gameId, int? winnerId)
+    {
+        if (winnerId == null) throw new ArgumentNullException(nameof(winnerId), "Winner ID cannot be null.");
+        _gameRepository.UpdateWinner(gameId, winnerId.Value);
+    }
+
 }

@@ -6,6 +6,8 @@ using SeaBattle.Services;
 using System.Runtime.InteropServices;
 using SeaBattle.ViewModels;
 using SeaBattle.Contexts;
+using System.Windows.Media.Animation;
+using SeaBattle.Views;
 
 namespace SeaBattle;
 
@@ -31,32 +33,24 @@ public partial class App : Application
         var cellService = new CellService(cellRepo);
         var gameService = new GameService(gameRepo, cellService);
         var sessionService = new SessionService();
+        var turnService = new TurnService(gameService, sessionService);
+        var actionService = new ActionService(gameService, sessionService);
+        var gameStateService = new GameStateService(gameService, userService, sessionService);
 
         _navigationService = new NavigationService(type =>
         {
             return type switch
             {
                 Type t when t == typeof(LoginViewModel) => new LoginViewModel(userService, sessionService, _navigationService),
-                Type t when t == typeof(CreateEnterGameViewModel) => new CreateEnterGameViewModel(gameService, sessionService, _navigationService),
+                Type t when t == typeof(GameLobbyViewModel) => new GameLobbyViewModel(gameService, sessionService, _navigationService),
                 Type t when t == typeof(PlaceShipsViewModel) => new PlaceShipsViewModel(gameService, sessionService, _navigationService),
-                Type t when t == typeof(BattleViewModel) => new BattleViewModel(gameService, sessionService, _navigationService),
+                Type t when t == typeof(BattleViewModel) => new BattleViewModel(gameStateService, turnService, actionService, _navigationService),
+                Type t when t == typeof(GameHistoryViewModel) => new GameHistoryViewModel(gameService, userService, sessionService, _navigationService),
                 _ => throw new InvalidOperationException($"No ViewModel mapping for {type.Name}")
             };
         });
 
         _navigationService.NavigateTo<LoginViewModel>();
-
-        // // var loginScreen = new Views.LoginScreen(userService, gameService);
-        // var loginVM = new LoginViewModel(userService, gameService, sessionService);
-
-        // // Create the View (LoginScreen) and bind it to the ViewModel
-        // var loginScreen = new Views.LoginScreen
-        // {
-        //     DataContext = loginVM
-        // };
-
-        // // Show the LoginScreen
-        // loginScreen.Show();
     }
 
 }

@@ -1,0 +1,17 @@
+<Window x:Class="SeaBattle.Views.GameHistoryView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Game History" Height="400" Width="600">
+    <Grid>
+         <ListBox x:Name="GamesListBox" Margin="10" ItemsSource="{Binding PlayedGames}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel>
+                        <TextBlock Text="{Binding GameInfo}" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding Status}" Foreground="Gray"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</Window>

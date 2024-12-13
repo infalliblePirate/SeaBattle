@@ -4,7 +4,8 @@ using SeaBattle.Models;
 namespace SeaBattle.Mappers;
 
 public class GameMapper {
-    public static GameModel ToGameModel(GameEntity entity) {
+    public static GameModel ToGameModel(GameEntity entity)
+    {
         if (entity == null) throw new ArgumentNullException(nameof(entity));
 
         return new GameModel {
@@ -29,5 +30,12 @@ public class GameMapper {
             IsPlayer1Turn = model.IsPlayer1Turn
         };
     }
+    public static List<GameModel> ToGameModelList(IEnumerable<GameEntity> entities)
+    {
+        if (entities == null) throw new ArgumentNullException(nameof(entities));
+
+        return entities.Select(ToGameModel).ToList();
+    }
+
  
 }

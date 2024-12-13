@@ -1,144 +1,151 @@
-using System;
 using System.Collections.ObjectModel;
-using SeaBattle.Views;
+
 using SeaBattle.Services;
+using SeaBattle.Managers;
 using SeaBattle.Utils;
 using SeaBattle.Contexts;
 using SeaBattle.Common;
-using System.Timers;
-using System.Windows.Threading;
 
-namespace SeaBattle.ViewModels
+namespace SeaBattle.ViewModels;
+
+public class BattleViewModel : BaseViewModel, IInitializable
 {
-    public class BattleViewModel : BaseViewModel, IInitializable
+    private readonly INavigationService _navigationService;
+    private readonly ActionService _actionService;
+    private readonly GameStateService _gameStateService;
+    private readonly TurnService _turnService;
+    private readonly BoardProps _props;
+    public ObservableCollection<CellViewModel> MyBoard { get; } = new ObservableCollection<CellViewModel>();
+    public ObservableCollection<CellViewModel> OpponentBoard { get; } = new ObservableCollection<CellViewModel>();
+
+    private  TurnManager _turnManager;
+
+    private bool _isMyTurn;
+    public bool IsMyTurn
     {
-        private readonly INavigationService _navigationService;
-        private readonly GameService _gameService;
-        private readonly SessionService _sessionService;
-        private int _gameId;
-        private readonly BoardProps _props;
-
-        private bool _isMyTurn;
-        public bool IsMyTurn
+        get => _isMyTurn;
+        private set
         {
-            get => _isMyTurn;
-            private set
+            if (_isMyTurn != value)
             {
-                if (_isMyTurn != value)
-                {
-                    _isMyTurn = value;
-                    OnPropertyChanged(nameof(CanFire));
-                    FireAtOpponentCommand.RaiseCanExecuteChanged();
-                }
+                _isMyTurn = value;
+                OnPropertyChanged(nameof(CanFire));
+                FireAtOpponentCommand.RaiseCanExecuteChanged();
             }
         }
-
-        public ObservableCollection<CellViewModel> MyBoard { get; } = new ObservableCollection<CellViewModel>();
-        public ObservableCollection<CellViewModel> OpponentBoard { get; } = new ObservableCollection<CellViewModel>();
-
-        public RelayCommand FireAtOpponentCommand { get; }
-        public bool CanFire => IsMyTurn;
-
-        private System.Timers.Timer _turnCheckerTimer;
-        private DateTime _lastTurnChecked;
-
-        public BattleViewModel(GameService gameService, SessionService sessionService, INavigationService navigationService)
+    }
+    private bool _isGameOver;
+    public bool IsGameOver
+    {
+        get => _isGameOver;
+        private set
         {
-            _navigationService = navigationService;
-            _gameService = gameService;
-            _sessionService = sessionService;
-            _props = new BoardProps();
-
-            InitializeBoards();
-
-            FireAtOpponentCommand = new RelayCommand
-            (
-                param => FireAtOpponent((CellViewModel)param),
-                param => CanFire
-            );
-
-            _turnCheckerTimer = new System.Timers.Timer
+            if (_isGameOver != value)
             {
-                Interval = 1000,
-                AutoReset = true, 
-                Enabled = true
-            };
-            _turnCheckerTimer.Elapsed += CheckTurnState;
-        }
-
-        public void InitializeAdditional(object param)
-        {
-            if (param is AddGameContext gameContext)
-            {
-                _gameId = gameContext.GameId;
-                UpdateMyBoardUI();
-                UpdateTurnState();
+                _isGameOver = value;
+                OnPropertyChanged(nameof(IsGameOver));  
+                OnPropertyChanged(nameof(CanFire));
             }
         }
+    }
 
-        private void InitializeBoards()
+    public RelayCommand FireAtOpponentCommand { get; }
+    public bool CanFire => IsMyTurn;
+    private int _gameId;
+
+    public BattleViewModel(GameStateService gameStateService, TurnService turnService, ActionService actionService, INavigationService navigationService)
+    {
+        _navigationService = navigationService;
+        _actionService = actionService;
+        _turnService = turnService;
+       _gameStateService = gameStateService;
+       _props = new BoardProps();
+
+        FireAtOpponentCommand = new RelayCommand(
+            param => FireAtOpponent((CellViewModel)param),
+            param => CanFire && !IsGameOver);
+        InitializeBoards();
+    }
+
+    public void InitializeAdditional(object param)
+    {
+        if (param is AddGameContext gameContext)
         {
-            for (int row = 0; row < _props.Size; row++)
+            _gameId = gameContext.GameId;
+            _turnManager = new TurnManager(_turnService, UpdateTurnState, _gameId);
+            _turnManager.TurnChanged += OnTurnChanged;
+            UpdatePlayerBoard();
+        }
+    }
+
+     private void InitializeBoards()
+    {
+        for (int row = 0; row < _props.Size; row++)
+        {
+            for (int col = 0; col < _props.Size; col++)
             {
-                for (int col = 0; col < _props.Size; col++)
-                {
-                    MyBoard.Add(new CellViewModel { Row = row, Column = col, State = "Empty" });
-                    OpponentBoard.Add(new CellViewModel { Row = row, Column = col, State = "Empty" });
-                }
+                MyBoard.Add(new CellViewModel { Row = row, Column = col, State = "Empty" });
+                OpponentBoard.Add(new CellViewModel { Row = row, Column = col, State = "Empty" });
             }
         }
+    }
 
-        private void FireAtOpponent(CellViewModel cell)
+    public void UpdatePlayerBoard()
+    {
+        var cells = _gameStateService.GetPlayerBoard(_gameId);
+
+        App.Current.Dispatcher.Invoke(() =>
         {
-            int playerId = _sessionService.ActiveUser.Id;
-            int opponentId = _gameService.GetOpponentId(_gameId, playerId);
-
-            bool isHit = _gameService.FireAtOpponent(_gameId, opponentId, cell.Row, cell.Column);
-            cell.State = isHit ? "Hit" : "Miss";
-
-            _gameService.SwitchTurn(_gameId);
-            UpdateTurnState();
-            UpdateMyBoardUI();
-            OnPropertyChanged(nameof(OpponentBoard));
-        }
-
-        private void UpdateMyBoardUI()
-        {
-            int playerId = _sessionService.ActiveUser.Id;
-            var cells = _gameService.GetNotBlockedCellsForPlayer(_gameId, playerId);
-
-            App.Current.Dispatcher.Invoke(() =>
+            foreach (var cell in cells)
             {
-                foreach (var cell in cells)
-                {
-                    var uiCell = MyBoard[cell.Row * 10 + cell.Col];
-                    uiCell.State = cell.State.ToString();
-                }
-                OnPropertyChanged(nameof(MyBoard));
-            });
-        }
-
-        private void UpdateTurnState()
-        {
-            int playerId = _sessionService.ActiveUser.Id;
-            IsMyTurn = _gameService.IsPlayerTurn(_gameId, playerId);
-        }
-
-        private void CheckTurnState(object sender, ElapsedEventArgs e)
-        {
-            if ((DateTime.Now - _lastTurnChecked).TotalSeconds >= 1)
-            {
-                _lastTurnChecked = DateTime.Now;
-                
-                UpdateTurnState();
-                UpdateMyBoardUI();
+                var uiCell = MyBoard[cell.Row * _props.Size + cell.Col];
+                uiCell.State = cell.State.ToString();
             }
-        }
+            OnPropertyChanged(nameof(MyBoard));
+        });
+    }
 
-        public void Dispose()
+    private void FireAtOpponent(CellViewModel cell)
+    {
+        if (_actionService.FireAtOpponent(_gameId, cell.Row, cell.Column))
         {
-            _turnCheckerTimer.Stop();
-            _turnCheckerTimer.Elapsed -= CheckTurnState;
+            cell.State = "Hit";
         }
+        else
+        {
+            _turnManager.SwitchTurn();
+            cell.State = "Miss";
+        }
+    }
+
+    private void OnTurnChanged(object sender, EventArgs e)
+    {
+        UpdateTurnState();
+        UpdatePlayerBoard();
+        CheckGameOver();
+    }
+
+    private void UpdateTurnState()
+    {
+        App.Current.Dispatcher.Invoke(() =>
+        {
+            IsMyTurn = _turnManager.CheckTurnState();
+        });
+    }
+
+    private void CheckGameOver()
+    {
+        var gameResult = _gameStateService.CheckAndGetGameResult(_gameId);
+        if (gameResult.IsGameOver)
+        {
+            IsGameOver = true;
+            _gameStateService.HandleGameOver(_gameId, gameResult.WinnerId, gameResult.Score);
+        }
+    }
+
+
+    public void Dispose()
+    {
+        _turnManager.Dispose();
     }
 }

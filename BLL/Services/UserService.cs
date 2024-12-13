@@ -1,21 +1,26 @@
 using SeaBattle.Models;
 using SeaBattle.Data;
 using SeaBattle.Entities;
+
 namespace SeaBattle.Services;
 public class UserService {
     private readonly IUserRepository _userRepository;
 
-    public UserService(IUserRepository userRepository) {
+    public UserService(IUserRepository userRepository)
+    {
         _userRepository = userRepository;
     }
 
-    public UserModel? LoginUser(string username, string password) {
+    public UserModel? LoginUser(string username, string password)
+    {
         var userEntity = _userRepository.GetUserByUsername(username);
 
-        if (userEntity == null || !VerifyPassword(password, userEntity.PasswordHash)) {
+        if (userEntity == null || !VerifyPassword(password, userEntity.PasswordHash)) 
+        {
             return null;
         }
-        var userModel = new UserModel {
+        var userModel = new UserModel 
+        {
             Id = userEntity.Id,
             Username = userEntity.Username,
             PasswordHash = userEntity.PasswordHash
@@ -24,35 +29,54 @@ public class UserService {
         return userModel;
     }
 
-    public UserModel? RegisterUser(string username, string password) {
+    public UserModel? RegisterUser(string username, string password) 
+    {
         var existing = _userRepository.GetUserByUsername(username);
-        if (existing != null) {
+        if (existing != null) 
+        {
             return null;
         }
 
         var hashedPassword = HashPassword(password);
         var userEntity = new UserEntity { Username = username, PasswordHash = hashedPassword };
-        try {
+        try 
+        {
             int userId = _userRepository.AddUser(userEntity);
-            var userModel = new UserModel {
+            var userModel = new UserModel
+            {
                 Id = userId,
                 Username = userEntity.Username,
                 PasswordHash = userEntity.PasswordHash
             };
             return userModel;
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             Console.Error.WriteLine($"Error upon creating user: {ex.Message}");
             return null;
         }
        
     }
 
-    private bool VerifyPassword(string password, string storedHashed) {
+    public string GetUsernameById(int id)
+    {
+        string username = _userRepository.GetUserNameById(id);
+        if (username != null)
+            return username;
+        throw new ArgumentNullException(nameof(id), "Camnnot find username with specified id: {id}.");
+    }
+
+    public void UpdateUserScore(int playerId, int scoreChange)
+    {
+        _userRepository.UpdateUserScore(playerId, scoreChange);
+    }
+
+    private bool VerifyPassword(string password, string storedHashed)
+    {
         // TODO: store hashed
         return password == storedHashed;
     }
 
-    private string HashPassword(string password) {
+    private string HashPassword(string password) 
+    {
         // TODO: store hashed
         return password;
     }

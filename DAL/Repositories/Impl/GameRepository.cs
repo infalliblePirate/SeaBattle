@@ -1,5 +1,6 @@
 using Npgsql;
 using SeaBattle.Entities;
+using SeaBattle.Dtos;
 
 namespace SeaBattle.Data;
 
@@ -12,10 +13,44 @@ public class GameRepository : IGameRepository
         _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
     }
 
-    public List<GameEntity> GetPlayedGamesByUsername(string username)
+    public List<GameSummaryDto> GetGameSummariesByUserId(int userId)
     {
-        return new List<GameEntity>();
+        using var connection = new NpgsqlConnection(_connectionString);
+        connection.Open();
+
+        const string query = @"
+            SELECT 
+                CASE 
+                    WHEN user1_id = @UserId THEN user2_id 
+                    ELSE user1_id 
+                END AS opponent_id,
+                winner_id,
+                score
+            FROM games
+            WHERE user1_id = @UserId OR user2_id = @UserId;";
+
+        using var command = new NpgsqlCommand(query, connection);
+        command.Parameters.AddWithValue("@UserId", userId);
+
+        using var reader = command.ExecuteReader();
+        var gameSummaries = new List<GameSummaryDto>();
+
+        while (reader.Read())
+        {
+            gameSummaries.Add(new GameSummaryDto
+            {
+                OpponentId = reader.IsDBNull(reader.GetOrdinal("opponent_id")) 
+                            ? null : reader.GetInt32(reader.GetOrdinal("opponent_id")),
+                WinnerId = reader.IsDBNull(reader.GetOrdinal("winner_id")) 
+                        ? null : reader.GetInt32(reader.GetOrdinal("winner_id")),
+                Score = reader.IsDBNull(reader.GetOrdinal("score")) 
+                        ? null : reader.GetInt32(reader.GetOrdinal("score"))
+            });
+        }
+
+        return gameSummaries;
     }
+
 
     public int CreateGame(int user1Id)
     {
@@ -122,8 +157,6 @@ public class GameRepository : IGameRepository
         }
     }
 
-
-
     public void UpdateGame(GameEntity game)
     {
         if (game == null) throw new ArgumentNullException(nameof(game));
@@ -229,4 +262,26 @@ public class GameRepository : IGameRepository
             throw new InvalidOperationException("Unable to switch turn. Game not found.");
         }
     }
+
+    public void UpdateWinner(int gameId, int winnerId)
+    {
+        using var connection = new NpgsqlConnection(_connectionString);
+        connection.Open();
+
+        const string query = @"
+            UPDATE games
+            SET winner_id = @WinnerId
+            WHERE id = @GameId;";
+        
+        using var command = new NpgsqlCommand(query, connection);
+        command.Parameters.AddWithValue("@GameId", gameId);
+        command.Parameters.AddWithValue("@WinnerId", winnerId);
+
+        var rowsAffected = command.ExecuteNonQuery();
+        if (rowsAffected == 0)
+        {
+            throw new InvalidOperationException("Unable to set winner. Game not found.");
+        }
+    }
+    
 }

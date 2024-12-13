@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using SeaBattle.Entities;
 namespace SeaBattle.Data;
 public interface IUserRepository {
-    UserEntity GetUserByUsername(string username);
     int AddUser(UserEntity user);
+    void UpdateUserScore(int playerId, int scoreChange);
+    string GetUserNameById(int id);
 }

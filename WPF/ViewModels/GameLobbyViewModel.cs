@@ -7,16 +7,16 @@ using System.Windows.Input;
 
 namespace SeaBattle.ViewModels;
 
-public class CreateEnterGameViewModel : BaseViewModel, IInitializable
+public class GameLobbyViewModel : BaseViewModel, IInitializable
 {
     private string _gameCode;
-    // private readonly UserService _userService;
     private readonly INavigationService _navigationService;
     private readonly GameService _gameService;
     private readonly SessionService _sessionService;
 
     public ICommand EnterGameCommand { get; }
     public ICommand CreateGameCommand { get; }
+    public ICommand ViewHistoryCommand { get; }
 
     public string GameCode 
     {
@@ -31,7 +31,7 @@ public class CreateEnterGameViewModel : BaseViewModel, IInitializable
 
     public void InitializeAdditional(object param) {}
 
-    public CreateEnterGameViewModel(GameService gameService, SessionService sessionService, INavigationService navigationService)
+    public GameLobbyViewModel(GameService gameService, SessionService sessionService, INavigationService navigationService)
     {
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
         _sessionService = sessionService ?? throw new ArgumentNullException(nameof(sessionService));
@@ -39,6 +39,7 @@ public class CreateEnterGameViewModel : BaseViewModel, IInitializable
 
         EnterGameCommand = new RelayCommand((param) => OnEnter(), CanEnterGame);
         CreateGameCommand = new RelayCommand((param) => OnCreate(), CanCreateGame);
+        ViewHistoryCommand = new RelayCommand((param) => OnViewHistory());
     }
 
     private bool CanEnterGame(object param) => true;
@@ -52,9 +53,6 @@ public class CreateEnterGameViewModel : BaseViewModel, IInitializable
             {
                 MessageBox.Show($"Game created with ID: {gameId.Value}");
                 _navigationService.NavigateTo<PlaceShipsViewModel>(new AddGameContext(gameId.Value));
-                // var placeShipsVM = new PlaceShipsViewModel(gameId.Value, _gameService, _sessionService);
-                // var placeShipsScreen = new PlaceShipsScreen(placeShipsVM);
-                // placeShipsScreen.Show();
             }
             else
             {
@@ -74,9 +72,6 @@ public class CreateEnterGameViewModel : BaseViewModel, IInitializable
                 _gameService.AddOpponentToGame(gameId, _sessionService.ActiveUser.Id);
                 MessageBox.Show("Success.");
                 _navigationService.NavigateTo<PlaceShipsViewModel>(new AddGameContext(gameId));
-                // var placeShipsVM = new PlaceShipsViewModel(gameId,_gameService, _sessionService);
-                // var placeShipsScreen = new PlaceShipsScreen(placeShipsVM);
-                // placeShipsScreen.Show();
             } else
             {
                 MessageBox.Show("Please enter a valid game code.");
@@ -88,5 +83,9 @@ public class CreateEnterGameViewModel : BaseViewModel, IInitializable
         }
     }
 
+    private void OnViewHistory()
+    {
+        _navigationService.NavigateTo<GameHistoryViewModel>(_sessionService.ActiveUser.Id);
+    }
 
 }

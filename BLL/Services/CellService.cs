@@ -46,7 +46,6 @@ public class CellService {
             State = state.ToString()
         };
 
-        // var cellEntity = CellMapper.ToCellEntity(cell);
         try
         {
             int cellId = _cellRepository.AddCell(cellEntity);
